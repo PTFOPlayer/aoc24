@@ -21,8 +21,39 @@ fn main() {
         })
     });
 
-    print_state(&data);
+    let part1 = possible_positions(data.clone(), size, guard).unwrap();
 
+    let result = part1
+        .iter()
+        .map(|x| *x.iter().counts_by(|x| *x == b'X').get(&true).unwrap_or(&0))
+        .sum::<usize>();
+    println!("{}", result);
+
+    let mut part2 = 0usize;
+    for i in 0..size.1 {
+        for j in 0..size.0 {
+            let mut cloned = data.clone();
+            if part1[i][j] != b'X' || (i == guard.0 && j == guard.1) {
+                continue;
+            }
+
+            cloned[i][j] = b'#';
+            if let None = possible_positions(cloned, size, guard) {
+                part2 += 1;
+            }
+        }
+    }
+
+    println!("{}", part2-1);
+}
+
+fn possible_positions(
+    mut data: Vec<Vec<u8>>,
+    size: (usize, usize),
+    mut guard: (usize, usize),
+) -> Option<Vec<Vec<u8>>> {
+    let mut history = vec![];
+    history.push((guard, b'^'));
     'l1: loop {
         let value = match data[guard.0][guard.1] {
             b'^' => (-1, 0, b'>'),
@@ -42,6 +73,10 @@ fn main() {
         }
 
         if data[next.0][next.1] == b'#' {
+            if history.iter().contains(&(guard, data[guard.0][guard.1])) {
+                return None;
+            }
+            history.push((guard, data[guard.0][guard.1]));
             data[guard.0][guard.1] = value.2;
         } else if data[next.0][next.1] == b'.' || data[next.0][next.1] == b'X' {
             let symbol = data[guard.0][guard.1];
@@ -53,22 +88,6 @@ fn main() {
     }
 
     data[guard.0][guard.1] = b'X';
-    print_state(&data);
 
-    let result = data
-        .iter()
-        .map(|x| *x.iter().counts_by(|x| *x == b'X').get(&true).unwrap_or(&0))
-        .sum::<usize>();
-    println!("{}", result);
-}
-
-fn print_state(data: &Vec<Vec<u8>>) {
-    for line in data {
-        for elem in line {
-            print!("{}", char::from(*elem))
-        }
-        println!();
-    }
-
-    println!();
+    Some(data)
 }
