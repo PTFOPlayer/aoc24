@@ -32,6 +32,16 @@ fn main() {
     println!("{}", result);
 }
 
+const OPS: [(
+    Option<fn(usize, usize) -> usize>,
+    Option<fn(usize, usize) -> usize>,
+); 4] = [
+    (None, Some(usize::wrapping_sub)),
+    (None, Some(usize::wrapping_add)),
+    (Some(usize::wrapping_sub), None),
+    (Some(usize::wrapping_add), None),
+];
+
 fn search_recursive(
     data: &mut Data,
     size: &mut i64,
@@ -43,17 +53,7 @@ fn search_recursive(
     *size += 1;
     data.get_mut(i, j).unwrap().0 = 1;
 
-    let ops: [(
-        Option<fn(usize, usize) -> usize>,
-        Option<fn(usize, usize) -> usize>,
-    ); 4] = [
-        (None, Some(usize::wrapping_sub)),
-        (None, Some(usize::wrapping_add)),
-        (Some(usize::wrapping_sub), None),
-        (Some(usize::wrapping_add), None),
-    ];
-
-    for (opi, opj) in ops {
+    for (opi, opj) in OPS {
         let new_i = opi.map_or(i, |op| op(i, 1));
         let new_j = opj.map_or(j, |op| op(j, 1));
         if let Some((visited, new_byte)) = data.get(new_i, new_j) {
