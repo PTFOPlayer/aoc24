@@ -1,3 +1,4 @@
+use num::integer::Roots;
 use pathfinding::{directed::astar, prelude::AstarSolution};
 use std::fs;
 
@@ -30,9 +31,13 @@ fn main() {
     let mut part2 = 0;
     for start in zeros {
         for end in &nines {
-            if let Some(paths) = path_find(start, *end, &data) {
-                part1 += 1;
-                part2 += paths.0.into_iter().count();
+            let distance =
+                Roots::sqrt(&(start.0.abs_diff(end.0).pow(2) + start.1.abs_diff(end.1).pow(2)));
+            if distance <= 10 {
+                if let Some(paths) = path_find(start, *end, &data) {
+                    part1 += 1;
+                    part2 += paths.0.into_iter().count();
+                }
             }
         }
     }
