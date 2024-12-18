@@ -30,19 +30,21 @@ fn main() {
 
     let path = check_path(&memory);
 
-    if let Some(path) = path {
-        println!("part1: {}", path.1)
-    } else {
-        println!("invalid")
-    }
+    let Some(path) = path else { panic!("invalid") };
+    println!("part1: {}", path.1);
 
     let mut cell = 0;
+    let mut last_path = path.0;
     for iter in CELLS..bytes.len() {
         let (i, j) = bytes[iter];
         memory[j][i] = b'#';
-        if let None = check_path(&memory) {
-            cell = iter;
-            break;
+        if last_path.contains(&(j, i)) {
+            if let Some(path) = check_path(&memory) {
+                last_path = path.0;
+            } else {
+                cell = iter;
+                break;
+            }
         }
     }
 
