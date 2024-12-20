@@ -41,12 +41,16 @@ fn search_possibilities<'a>(
         return 0;
     };
 
-    let mut cnt = 0;
-    for v in v {
-        if let Some(new_towel) = towel.strip_prefix(v) {
-            cnt += search_possibilities(new_towel, variants, cache)
-        }
-    }
+    let cnt = v
+        .iter()
+        .map(|v| {
+            if let Some(new_towel) = towel.strip_prefix(v) {
+                search_possibilities(new_towel, variants, cache)
+            } else {
+                0
+            }
+        })
+        .sum();
 
     cache.insert(towel, cnt);
 
